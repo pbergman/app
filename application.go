@@ -1,13 +1,13 @@
 package app
 
 import (
+	"fmt"
 	"io"
 	"os"
-	"fmt"
 	"text/template"
 )
 
-var UsageTmpl =	`
+var UsageTmpl = `
 {{- if has_intro -}}
 	{{ intro }}
 {{ end -}}
@@ -37,8 +37,8 @@ type App struct {
 	Name        string
 	Intro       string
 	bin         string
-	StdOut		io.Writer
-	StdErr		io.Writer
+	StdOut      io.Writer
+	StdErr      io.Writer
 }
 
 // Usage will print the application usage to the given writer
@@ -59,6 +59,7 @@ func (a *App) GetCommand(name string) CommandInterface {
 	}
 	return nil
 }
+
 // Run will run the command with the given args, if a error is returned it
 // will be of a app.Error and has a exit function.
 //
@@ -149,9 +150,9 @@ func (a *App) GetTemplateEngine() *template.Template {
 
 func NewApp(command ...CommandInterface) *App {
 	return &App{
-		commands: 		command,
-		bin: 			os.Args[0],
-		StdOut:			os.Stdout,
-		StdErr:			os.Stderr,
+		commands: command,
+		bin:      os.Args[0],
+		StdOut:   os.Stdout,
+		StdErr:   os.Stderr,
 	}
 }

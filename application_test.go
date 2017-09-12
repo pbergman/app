@@ -1,8 +1,8 @@
 package app
 
 import (
-	"os"
 	"fmt"
+	"os"
 
 	flag "github.com/spf13/pflag"
 )
@@ -142,9 +142,10 @@ func ExampleApplication_usage_basic() {
 	//
 }
 
-type noOpCommand struct { CommandInterface }
+type noOpCommand struct{ CommandInterface }
+
 func (t noOpCommand) Run([]string, *App) error { return nil }
-func (t noOpCommand) Init(*App) error { return nil }
+func (t noOpCommand) Init(*App) error          { return nil }
 
 func newRunnableTestCommand(n string) CommandInterface {
 	return &noOpCommand{newTestCommand(n)}
