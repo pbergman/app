@@ -1,9 +1,5 @@
 package app
 
-import (
-	flag "github.com/spf13/pflag"
-)
-
 type (
 	// Command is a basic helper topic or when embed it can
 	// be used for easily create a runnable command.
@@ -20,7 +16,7 @@ type (
 	//	return nil
 	// }
 	Command struct {
-		Flags *flag.FlagSet
+		Flags FlagSet
 		Usage string
 		Short string
 		Long  string
@@ -31,7 +27,7 @@ type (
 	// should have to be a helper topic, for a runnable command
 	// it should also implement CommandRunnableInterface
 	CommandInterface interface {
-		GetFlags() *flag.FlagSet
+		GetFlags() FlagSet
 		GetUsage() string
 		GetShort() string
 		GetLong() string
@@ -46,8 +42,8 @@ type (
 	}
 )
 
-func (c *Command) GetFlags() *flag.FlagSet { return c.Flags }
-func (c *Command) GetUsage() string        { return c.Usage }
-func (c *Command) GetShort() string        { return c.Short }
-func (c *Command) GetLong() string         { return c.Long }
-func (c *Command) GetName() string         { return c.Name }
+func (c *Command) GetFlags() FlagSet { return c.Flags }
+func (c *Command) GetUsage() string  { return c.Usage }
+func (c *Command) GetShort() string  { return c.Short }
+func (c *Command) GetLong() string   { return c.Long }
+func (c *Command) GetName() string   { return c.Name }

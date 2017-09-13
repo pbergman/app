@@ -7,30 +7,6 @@ import (
 	"text/template"
 )
 
-var UsageTmpl = `
-{{- if has_intro -}}
-	{{ intro }}
-{{ end -}}
-Usage:
-	{{ exec_bin }} command [arguments]
-
-{{ if has_runnable . -}}
-The commands are:
-{{range .}}{{if runnable . }}
-	{{.GetName | printf "%-11s"}} {{.GetShort}}{{end}}{{end}}
-
-Use "{{exec_bin}} help [command]" for more information about a command.
-{{ end -}}
-
-{{ if has_not_runnable . }}
-Additional help topics:
-{{range .}}{{if not (runnable .) }}
-	{{.GetName | printf "%-11s"}} {{.GetShort}}{{end}}{{end}}
-
-Use "{{exec_bin}} help [topic]" for more information about that topic.
-{{ end -}}
-`
-
 type App struct {
 	temperating *template.Template
 	commands    []CommandInterface
@@ -78,7 +54,7 @@ func (a *App) Run(args []string) error {
 					return Error{err, 3}
 				}
 				flags := cmd.GetFlags()
-				flags.Usage = func() { a.help(cmd.GetName()); os.Exit(2) }
+				setFlagsUsage(flags, func() { a.help(cmd.GetName()); os.Exit(2) })
 				flags.Parse(args[1:])
 				if err := runnable.Run(cmd.GetFlags().Args(), a); err != nil {
 					return Error{err, 4}

@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// Error holds a inner error and a exit code
 type Error struct {
 	Err  error
 	Code int8
