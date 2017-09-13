@@ -8,6 +8,7 @@ import (
 )
 
 type App struct {
+	Container 	interface{}
 	temperating *template.Template
 	commands    []CommandInterface
 	Name        string
