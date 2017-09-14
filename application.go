@@ -16,6 +16,7 @@ type App struct {
 	bin         string
 	StdOut      io.Writer
 	StdErr      io.Writer
+	PreRun 		func(CommandInterface) error
 }
 
 // Usage will print the application usage to the given writer
@@ -50,22 +51,27 @@ func (a *App) Run(args []string) error {
 		return a.help(args[1:]...)
 	default:
 		if cmd := a.GetCommand(name); cmd != nil {
+			if a.PreRun != nil {
+				if err := a.PreRun(cmd); err != nil {
+					return &Error{err, 6}
+				}
+			}
 			if runnable, ok := cmd.(CommandRunnableInterface); ok {
 				if err := runnable.Init(a); err != nil {
-					return Error{err, 3}
+					return &Error{err, 3}
 				}
 				flags := cmd.GetFlags()
 				setFlagsUsage(flags, func() { a.help(cmd.GetName()); os.Exit(2) })
 				flags.Parse(args[1:])
 				if err := runnable.Run(cmd.GetFlags().Args(), a); err != nil {
-					return Error{err, 4}
+					return &Error{err, 4}
 				} else {
 					return nil
 				}
 			}
 		}
 	}
-	return Error{fmt.Errorf("Unknown subcommand %q.\nRun '%s help' for usage.\n", args[0], a.bin), 2}
+	return &Error{fmt.Errorf("Unknown subcommand %q.\nRun '%s help' for usage.\n", args[0], a.bin), 2}
 }
 
 func (a *App) help(args ...string) error {
@@ -80,7 +86,7 @@ func (a *App) help(args ...string) error {
 		if _, o := cmd.(CommandRunnableInterface); o {
 			fmt.Fprintf(a.StdOut, "usage: %s %s %s\n\n", a.bin, cmd.GetName(), cmd.GetUsage())
 		}
-		a.tmpl(cmd.GetLong(), a.StdOut, nil)
+		a.tmpl(cmd.GetLong(), a.StdOut, a.Container)
 	}
 	return nil
 }
