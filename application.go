@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"text/template"
+	"strings"
 )
 
 type App struct {
@@ -21,7 +22,33 @@ type App struct {
 
 // Usage will print the application usage to the given writer
 func (a *App) Usage(w io.Writer) {
-	a.tmpl(UsageTmpl, w, a.commands)
+	a.tmpl(UsageTmpl, w, a.getCommandList())
+}
+
+func (a *App) getCommandList() *commandList {
+	list := &commandList{0, make(map[string][]CommandInterface), make(map[string][]CommandInterface)}
+	for i, c := 0, len(a.commands); i < c; i++ {
+		name  := a.commands[i].GetName()
+		group := DEFAULT_GROUP_NAME
+		if s := len(name); s > list.Max {
+			list.Max = s
+		}
+		if index := strings.Index(name, ":"); index > 0 {
+			group = name[:index]
+		}
+		if _, ok := a.commands[i].(CommandRunnableInterface); ok {
+			if _, ok := list.Runnable[group]; !ok {
+				list.Runnable[group] = make([]CommandInterface, 0)
+			}
+			list.Runnable[group] = append(list.Runnable[group], a.commands[i])
+		}  else {
+			if _, ok := list.Helpers[group]; !ok {
+				list.Helpers[group] = make([]CommandInterface, 0)
+			}
+			list.Helpers[group] = append(list.Helpers[group], a.commands[i])
+		}
+	}
+	return list
 }
 
 func (a *App) tmpl(t string, w io.Writer, data interface{}) {
@@ -60,13 +87,16 @@ func (a *App) Run(args []string) error {
 				if err := runnable.Init(a); err != nil {
 					return &Error{err, 3}
 				}
-				flags := cmd.GetFlags()
-				setFlagsUsage(flags, func() { a.help(cmd.GetName()); os.Exit(2) })
-				flags.Parse(args[1:])
-				if err := runnable.Run(cmd.GetFlags().Args(), a); err != nil {
-					return &Error{err, 4}
-				} else {
-					return nil
+				if flags := cmd.GetFlags(); flags != nil {
+					setFlagsUsage(flags, func() { a.help(cmd.GetName()); os.Exit(2) })
+					if err := flags.Parse(args[1:]); err != nil {
+						return &Error{err, 5}
+					}
+					if err := runnable.Run(cmd.GetFlags().Args(), a); err != nil {
+						return &Error{err, 4}
+					} else {
+						return nil
+					}
 				}
 			}
 		}
@@ -96,25 +126,13 @@ func (a *App) GetTemplateEngine() *template.Template {
 	if a.temperating == nil {
 		a.temperating = template.New("app").Funcs(
 			template.FuncMap{
-				"runnable": func(c interface{}) bool {
-					_, o := c.(CommandRunnableInterface)
-					return o
-				},
-				"has_runnable": func(list []CommandInterface) bool {
-					for _, c := range list {
-						if _, ok := c.(CommandRunnableInterface); ok {
-							return true
-						}
+				"space": func(name string, max int) string {
+					size := (max - len(name)) + 2
+					buf := make([]byte, size)
+					for i := 0; i < size; i++ {
+						buf[i] = ' '
 					}
-					return false
-				},
-				"has_not_runnable": func(list []CommandInterface) bool {
-					for _, c := range list {
-						if _, ok := c.(CommandRunnableInterface); !ok {
-							return true
-						}
-					}
-					return false
+					return string(buf)
 				},
 				"exec_bin": func() string {
 					return a.bin

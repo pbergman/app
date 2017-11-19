@@ -63,24 +63,24 @@ func ExampleApplication_usage() {
 	)
 	app.bin = "test_app"
 	app.Usage(os.Stdout)
-	//Output:
-	//
+	// Output:
 	// Usage:
-	// 	test_app command [arguments]
+	//     test_app command [arguments]
 	//
-	// The commands are:
+	// Available commands:
 	//
-	// 	foo         This a one line info for foo
-	// 	bar         This a one line info for bar
+	//     bar       This a one line info for bar
+	//     foo       This a one line info for foo
 	//
 	// Use "test_app help [command]" for more information about a command.
 	//
-	// Additional help topics:
-	//
-	// 	help:bar    This a one line info for help:bar
-	// 	help:foo    This a one line info for help:foo
+	// Help topics:
+	// help
+	//     help:bar  This a one line info for help:bar
+	//     help:foo  This a one line info for help:foo
 	//
 	// Use "test_app help [topic]" for more information about that topic.
+
 }
 
 func ExampleApplication_usage_extra() {
@@ -93,22 +93,22 @@ func ExampleApplication_usage_extra() {
 	app.Intro = `Some example intro.........`
 	app.bin = "test_app"
 	app.Usage(os.Stdout)
-	//Output:
+	// Output:
 	// Some example intro.........
 	// Usage:
-	// 	test_app command [arguments]
+	//     test_app command [arguments]
 	//
-	// The commands are:
+	// Available commands:
 	//
-	// 	foo         This a one line info for foo
-	// 	bar         This a one line info for bar
+	//     bar       This a one line info for bar
+	//     foo       This a one line info for foo
 	//
 	// Use "test_app help [command]" for more information about a command.
 	//
-	// Additional help topics:
-	//
-	// 	help:bar    This a one line info for help:bar
-	// 	help:foo    This a one line info for help:foo
+	// Help topics:
+	// help
+	//     help:bar  This a one line info for help:bar
+	//     help:foo  This a one line info for help:foo
 	//
 	// Use "test_app help [topic]" for more information about that topic.
 }
@@ -118,14 +118,13 @@ func ExampleApplication_usage_simple() {
 	app.bin = "test_app"
 	app.Usage(os.Stdout)
 	//Output:
-	//
 	// Usage:
-	// 	test_app command [arguments]
+	//     test_app command [arguments]
 	//
-	// The commands are:
+	// Available commands:
 	//
-	// 	foo         This a one line info for foo
-	// 	bar         This a one line info for bar
+	//     bar  This a one line info for bar
+	//     foo  This a one line info for foo
 	//
 	// Use "test_app help [command]" for more information about a command.
 }
@@ -135,10 +134,8 @@ func ExampleApplication_usage_basic() {
 	app.bin = "test_app"
 	app.Usage(os.Stdout)
 	//Output:
-	//
 	// Usage:
-	// 	test_app command [arguments]
-	//
+	//     test_app command [arguments]
 }
 
 type noOpCommand struct{ CommandInterface }
