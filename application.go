@@ -17,6 +17,7 @@ type App struct {
 	bin         string
 	StdOut      io.Writer
 	StdErr      io.Writer
+	Active      bool
 	PreRun 		func(CommandInterface) error
 }
 
@@ -83,6 +84,9 @@ func (a *App) Run(args []string) error {
 					return &Error{err, 6}
 				}
 			}
+			if !a.Active {
+				return nil
+			}
 			if runnable, ok := cmd.(CommandRunnableInterface); ok {
 				if err := runnable.Init(a); err != nil {
 					return &Error{err, 3}
@@ -113,12 +117,16 @@ func (a *App) help(args ...string) error {
 		return &Error{fmt.Errorf("usage: %s help command\n\nToo many arguments given.\n", a.bin), 5}
 	}
 	if cmd := a.GetCommand(args[0]); cmd != nil {
-		if _, o := cmd.(CommandRunnableInterface); o {
-			fmt.Fprintf(a.StdOut, "usage: %s %s %s\n\n", a.bin, cmd.GetName(), cmd.GetUsage())
-		}
-		a.tmpl(cmd.GetLong(), a.StdOut, a.Container)
+
 	}
 	return nil
+}
+
+func (a *App) PrintHelp(cmd CommandInterface) {
+	if _, o := cmd.(CommandRunnableInterface); o {
+		fmt.Fprintf(a.StdOut, "usage: %s %s %s\n\n", a.bin, cmd.GetName(), cmd.GetUsage())
+	}
+	a.tmpl(cmd.GetLong(), a.StdOut, a.Container)
 }
 
 // GetTemplateEngine will return the template engine and add the default functions
@@ -153,6 +161,7 @@ func NewApp(command ...CommandInterface) *App {
 	return &App{
 		commands: command,
 		bin:      os.Args[0],
+		Active:   true,
 		StdOut:   os.Stdout,
 		StdErr:   os.Stderr,
 	}
