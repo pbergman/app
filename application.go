@@ -117,7 +117,7 @@ func (a *App) help(args ...string) error {
 		return &Error{fmt.Errorf("usage: %s help command\n\nToo many arguments given.\n", a.bin), 5}
 	}
 	if cmd := a.GetCommand(args[0]); cmd != nil {
-
+		a.PrintHelp(cmd)
 	}
 	return nil
 }
